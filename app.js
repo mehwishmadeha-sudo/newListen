@@ -1,4 +1,4 @@
-// Real-time Chat App - Optimized for Production
+// Real-time Chat App - Localized Font System
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, onSnapshot, query, orderBy, doc, setDoc, deleteDoc, collection, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
@@ -27,7 +27,7 @@ class FirebaseService {
         this.userId = window.CHAT_USER_ID || 'user1';
         this.otherUserId = window.CHAT_OTHER_USER_ID || 'user2';
         this.lastUpdateTime = 0;
-        this.debounceDelay = 50; // 50ms debounce for faster updates
+        this.debounceDelay = 50;
     }
 
     listenToMessages(callback) {
@@ -39,14 +39,13 @@ class FirebaseService {
         return onSnapshot(doc(this.db, 'typing', this.otherUserId), callback);
     }
 
-    listenToPreferences(callback) {
-        return onSnapshot(doc(this.db, 'preferences', 'shared'), callback);
+    listenToUserPreferences(callback) {
+        return onSnapshot(doc(this.db, 'user_preferences', this.otherUserId), callback);
     }
 
     async updateTyping(text, cursorPosition, selectionStart, selectionEnd) {
         const now = Date.now();
         
-        // Debounce updates for performance
         if (now - this.lastUpdateTime < this.debounceDelay) {
             return;
         }
@@ -70,12 +69,11 @@ class FirebaseService {
         }
     }
 
-    async updatePreferences(font, fontSize) {
+    async updateUserPreferences(font, fontSize) {
         try {
-            await setDoc(doc(this.db, 'preferences', 'shared'), {
+            await setDoc(doc(this.db, 'user_preferences', this.userId), {
                 font: font,
                 fontSize: fontSize,
-                updatedBy: this.userId,
                 timestamp: Date.now()
             }, { merge: true });
         } catch (error) {
@@ -83,9 +81,9 @@ class FirebaseService {
         }
     }
 
-    async loadPreferences() {
+    async loadUserPreferences() {
         try {
-            const prefsDoc = await getDoc(doc(this.db, 'preferences', 'shared'));
+            const prefsDoc = await getDoc(doc(this.db, 'user_preferences', this.userId));
             if (prefsDoc.exists()) {
                 return prefsDoc.data();
             }
@@ -121,6 +119,11 @@ class FirebaseService {
 class UIController {
     constructor() {
         this.otherMessagesDisplay = document.getElementById('otherMessagesDisplay');
+        this.myTextArea = document.getElementById('myMessages');
+        this.myFont = 'monospace';
+        this.myFontSize = 20;
+        this.otherFont = 'monospace';
+        this.otherFontSize = 20;
     }
 
     displayMessages(snapshot, userId) {
@@ -176,13 +179,40 @@ class UIController {
         this.otherMessagesDisplay.innerHTML = html;
     }
 
-    updateFont(fontType) {
-        const fontFamily = FONTS[fontType] || FONTS.monospace;
-        document.documentElement.style.setProperty('--font-family', fontFamily);
+    updateMyTextArea(font, fontSize) {
+        this.myFont = font;
+        this.myFontSize = fontSize;
+        const fontFamily = FONTS[font] || FONTS.monospace;
+        
+        this.myTextArea.style.fontFamily = fontFamily;
+        this.myTextArea.style.fontSize = fontSize + 'px';
+        
+        // Update direction for RTL/LTR
+        if (font === 'noto') {
+            this.myTextArea.classList.add('text-area--rtl');
+            this.myTextArea.classList.remove('text-area--ltr');
+        } else {
+            this.myTextArea.classList.add('text-area--ltr');
+            this.myTextArea.classList.remove('text-area--rtl');
+        }
     }
 
-    updateFontSize(fontSize) {
-        document.documentElement.style.setProperty('--font-size', fontSize + 'px');
+    updateOtherDisplay(font, fontSize) {
+        this.otherFont = font;
+        this.otherFontSize = fontSize;
+        const fontFamily = FONTS[font] || FONTS.monospace;
+        
+        this.otherMessagesDisplay.style.fontFamily = fontFamily;
+        this.otherMessagesDisplay.style.fontSize = fontSize + 'px';
+        
+        // Update direction for RTL/LTR
+        if (font === 'noto') {
+            this.otherMessagesDisplay.classList.add('text-with-cursor--rtl');
+            this.otherMessagesDisplay.classList.remove('text-with-cursor--ltr');
+        } else {
+            this.otherMessagesDisplay.classList.add('text-with-cursor--ltr');
+            this.otherMessagesDisplay.classList.remove('text-with-cursor--rtl');
+        }
     }
 
     escapeHtml(text) {
@@ -196,110 +226,99 @@ class UIController {
     }
 }
 
-// Preferences Controller
-class PreferencesController {
+// Control Panel Controller
+class ControlPanelController {
     constructor(firebaseService, uiController) {
         this.firebaseService = firebaseService;
         this.uiController = uiController;
-        this.overlay = document.getElementById('preferencesOverlay');
-        this.selectedFont = 'monospace';
-        this.selectedSize = 20;
+        this.currentFont = 'monospace';
+        this.currentSize = 20;
+        this.menuOpen = false;
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        // Preferences button
-        document.getElementById('preferencesButton').addEventListener('click', () => {
-            this.openPreferences();
+        // Clear button
+        document.getElementById('clearButton').addEventListener('click', async () => {
+            this.uiController.myTextArea.value = '';
+            await this.firebaseService.updateTyping('', 0, 0, 0);
+            this.uiController.myTextArea.focus();
         });
 
-        // Font option selection
-        document.querySelectorAll('.font-option').forEach(option => {
-            option.addEventListener('click', () => {
-                this.selectFont(option.dataset.font);
-            });
+        // Hamburger menu
+        document.getElementById('hamburgerButton').addEventListener('click', () => {
+            this.toggleMenu();
         });
 
-        // Text size slider
-        const sizeSlider = document.getElementById('sizeSlider');
-        const sizeValue = document.getElementById('sizeValue');
-        
-        sizeSlider.addEventListener('input', (e) => {
-            this.selectedSize = parseInt(e.target.value);
-            sizeValue.textContent = this.selectedSize;
+        // Font toggle
+        document.getElementById('fontToggle').addEventListener('click', () => {
+            this.toggleFont();
         });
 
-        // Action buttons
-        document.getElementById('cancelPreferences').addEventListener('click', () => {
-            this.closePreferences();
+        // Size controls
+        document.getElementById('sizePlus').addEventListener('click', () => {
+            this.changeSize(2);
         });
 
-        document.getElementById('applyPreferences').addEventListener('click', () => {
-            this.applyPreferences();
+        document.getElementById('sizeMinus').addEventListener('click', () => {
+            this.changeSize(-2);
         });
 
-        // Close on overlay click
-        this.overlay.addEventListener('click', (e) => {
-            if (e.target === this.overlay) {
-                this.closePreferences();
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.control-panel') && this.menuOpen) {
+                this.closeMenu();
             }
         });
     }
 
-    openPreferences() {
-        this.overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    closePreferences() {
-        this.overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    selectFont(fontType) {
-        this.selectedFont = fontType;
+    toggleMenu() {
+        const toggleOptions = document.getElementById('toggleOptions');
+        this.menuOpen = !this.menuOpen;
         
-        // Update UI selection
-        document.querySelectorAll('.font-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        document.querySelector(`[data-font="${fontType}"]`).classList.add('selected');
+        if (this.menuOpen) {
+            toggleOptions.classList.add('active');
+        } else {
+            toggleOptions.classList.remove('active');
+        }
     }
 
-    async applyPreferences() {
-        await this.firebaseService.updatePreferences(this.selectedFont, this.selectedSize);
-        this.uiController.updateFont(this.selectedFont);
-        this.uiController.updateFontSize(this.selectedSize);
-        this.closePreferences();
+    closeMenu() {
+        const toggleOptions = document.getElementById('toggleOptions');
+        toggleOptions.classList.remove('active');
+        this.menuOpen = false;
     }
 
-    updateCurrentSelection(fontType, fontSize) {
-        this.selectedFont = fontType;
-        this.selectedSize = fontSize;
-        
-        // Update font selection
-        document.querySelectorAll('.font-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        document.querySelector(`[data-font="${fontType}"]`).classList.add('selected');
-        
-        // Update size slider
-        const sizeSlider = document.getElementById('sizeSlider');
-        const sizeValue = document.getElementById('sizeValue');
-        sizeSlider.value = fontSize;
-        sizeValue.textContent = fontSize;
+    async toggleFont() {
+        this.currentFont = this.currentFont === 'monospace' ? 'noto' : 'monospace';
+        await this.updatePreferences();
+        this.closeMenu();
+    }
+
+    async changeSize(delta) {
+        this.currentSize = Math.max(14, Math.min(32, this.currentSize + delta));
+        await this.updatePreferences();
+    }
+
+    async updatePreferences() {
+        this.uiController.updateMyTextArea(this.currentFont, this.currentSize);
+        await this.firebaseService.updateUserPreferences(this.currentFont, this.currentSize);
+    }
+
+    setCurrentPreferences(font, fontSize) {
+        this.currentFont = font;
+        this.currentSize = fontSize;
+        this.uiController.updateMyTextArea(font, fontSize);
     }
 }
 
 // Text Area Controller
 class TextAreaController {
-    constructor(onInput, onClear, textArea) {
+    constructor(onInput, textArea) {
         this.onInput = onInput;
-        this.onClear = onClear;
         this.textArea = textArea;
         this.lastSelection = { start: 0, end: 0 };
         this.setupTextAreaInput();
-        this.setupClearButton();
         this.setupAutoFocus();
         this.setupViewportFix();
     }
@@ -313,8 +332,6 @@ class TextAreaController {
             const selectionStart = target.selectionStart;
             const selectionEnd = target.selectionEnd;
             
-            // Improved mobile selection detection
-            const hasSelection = selectionStart !== selectionEnd;
             const selectionChanged = 
                 this.lastSelection.start !== selectionStart || 
                 this.lastSelection.end !== selectionEnd;
@@ -322,10 +339,8 @@ class TextAreaController {
             if (selectionChanged || e.type === 'input') {
                 this.lastSelection = { start: selectionStart, end: selectionEnd };
                 
-                // Clear previous debounce for faster updates
                 if (debounceTimer) clearTimeout(debounceTimer);
                 
-                // Immediate update for input events, slight delay for selection
                 const delay = e.type === 'input' ? 0 : 25;
                 
                 debounceTimer = setTimeout(async () => {
@@ -334,21 +349,11 @@ class TextAreaController {
             }
         };
 
-        // Optimized event listeners for mobile
         this.textArea.addEventListener('input', handleSelection);
         this.textArea.addEventListener('selectionchange', handleSelection);
         this.textArea.addEventListener('touchend', handleSelection);
         this.textArea.addEventListener('mouseup', handleSelection);
         this.textArea.addEventListener('keyup', handleSelection);
-    }
-
-    setupClearButton() {
-        const clearButton = document.getElementById('clearButton');
-        clearButton.addEventListener('click', async () => {
-            this.textArea.value = '';
-            await this.onClear();
-            this.textArea.focus();
-        });
     }
 
     setupAutoFocus() {
@@ -372,46 +377,41 @@ class ChatApp {
     constructor() {
         this.firebaseService = new FirebaseService();
         this.uiController = new UIController();
-        this.textAreaElement = document.getElementById('myMessages');
-        this.preferencesController = new PreferencesController(this.firebaseService, this.uiController);
+        this.controlPanelController = new ControlPanelController(this.firebaseService, this.uiController);
         this.textAreaController = new TextAreaController(
             this.handleInput.bind(this),
-            this.handleClear.bind(this),
-            this.textAreaElement
+            this.uiController.myTextArea
         );
         this.init();
     }
 
     async init() {
-        // Load preferences first
-        const preferences = await this.firebaseService.loadPreferences();
-        this.uiController.updateFont(preferences.font);
-        this.uiController.updateFontSize(preferences.fontSize);
-        this.preferencesController.updateCurrentSelection(preferences.font, preferences.fontSize);
+        // Load my preferences
+        const myPreferences = await this.firebaseService.loadUserPreferences();
+        this.controlPanelController.setCurrentPreferences(myPreferences.font, myPreferences.fontSize);
 
-        // Load persisted text on startup
+        // Load persisted text
         const persistedText = await this.firebaseService.loadPersistedText();
         if (persistedText) {
-            this.textAreaElement.value = persistedText;
-            // Trigger update to sync cursor position
+            this.uiController.myTextArea.value = persistedText;
             await this.handleInput(persistedText, persistedText.length, persistedText.length, persistedText.length);
         }
 
+        // Listen to messages
         this.firebaseService.listenToMessages((snapshot) => {
             this.uiController.displayMessages(snapshot, this.firebaseService.userId);
         });
 
+        // Listen to other person's typing
         this.firebaseService.listenToTyping((doc) => {
             this.uiController.displayTyping(doc);
         });
 
-        // Listen to preference changes
-        this.firebaseService.listenToPreferences((doc) => {
+        // Listen to other person's preferences (for their display area)
+        this.firebaseService.listenToUserPreferences((doc) => {
             if (doc.exists()) {
                 const data = doc.data();
-                this.uiController.updateFont(data.font);
-                this.uiController.updateFontSize(data.fontSize);
-                this.preferencesController.updateCurrentSelection(data.font, data.fontSize);
+                this.uiController.updateOtherDisplay(data.font, data.fontSize);
             }
         });
 
@@ -421,24 +421,20 @@ class ChatApp {
 
         // Auto-save text periodically
         setInterval(() => {
-            const currentText = this.textAreaElement.value;
+            const currentText = this.uiController.myTextArea.value;
             if (currentText) {
                 this.firebaseService.updateTyping(
                     currentText, 
-                    this.textAreaElement.selectionStart,
-                    this.textAreaElement.selectionStart,
-                    this.textAreaElement.selectionEnd
+                    this.uiController.myTextArea.selectionStart,
+                    this.uiController.myTextArea.selectionStart,
+                    this.uiController.myTextArea.selectionEnd
                 );
             }
-        }, 5000); // Save every 5 seconds
+        }, 5000);
     }
 
     async handleInput(text, cursorPosition, selectionStart, selectionEnd) {
         await this.firebaseService.updateTyping(text, cursorPosition, selectionStart, selectionEnd);
-    }
-
-    async handleClear() {
-        await this.firebaseService.updateTyping('', 0, 0, 0);
     }
 }
 
