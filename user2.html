@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat - User 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="chat-container">
@@ -14,8 +17,46 @@
 
     <!-- My messages section -->
     <div class="surface-my-messages">
+        <button class="preferences-button" id="preferencesButton" title="Font preferences"></button>
         <button class="clear-button" id="clearButton" title="Clear message"></button>
         <textarea class="text-area text-area--my" id="myMessages" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
+    </div>
+
+    <!-- Preferences Overlay -->
+    <div class="preferences-overlay" id="preferencesOverlay">
+        <div class="preferences-dialog">
+            <h3 class="preferences-title">Font Settings</h3>
+            
+            <div class="font-option selected" data-font="monospace">
+                <div class="font-radio"></div>
+                <div>
+                    <div class="font-label">Monospace</div>
+                    <div class="font-preview" style="font-family: 'Courier New', monospace;">The quick brown fox jumps</div>
+                </div>
+            </div>
+            
+            <div class="font-option" data-font="noto">
+                <div class="font-radio"></div>
+                <div>
+                    <div class="font-label">Noto Nastaliq</div>
+                    <div class="font-preview" style="font-family: 'Noto Nastaliq Urdu', serif;">یہ ایک خوبصورت فونٹ ہے</div>
+                </div>
+            </div>
+            
+            <div class="size-control">
+                <label class="size-label">Text Size</label>
+                <div class="size-slider-container">
+                    <span class="size-value" id="sizeValue">20</span>
+                    <input type="range" class="size-slider" id="sizeSlider" min="14" max="32" value="20" step="2">
+                    <span style="color: var(--text-purple); font-size: 12px;">px</span>
+                </div>
+            </div>
+            
+            <div class="preferences-actions">
+                <button class="preference-button preference-button--cancel" id="cancelPreferences">Cancel</button>
+                <button class="preference-button preference-button--apply" id="applyPreferences">Apply</button>
+            </div>
+        </div>
     </div>
 
     <script type="module">
