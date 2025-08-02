@@ -17,8 +17,15 @@
 
     <!-- My messages section -->
     <div class="surface-my-messages">
-        <button class="preferences-button" id="preferencesButton" title="Font preferences"></button>
-        <button class="clear-button" id="clearButton" title="Clear message"></button>
+        <div class="control-panel">
+            <button class="control-icon clear-button" id="clearButton" title="Clear message"></button>
+            <button class="control-icon hamburger-button" id="hamburgerButton" title="Options"></button>
+            <div class="toggle-options" id="toggleOptions">
+                <button class="control-icon font-toggle" id="fontToggle" title="Toggle font"></button>
+                <button class="control-icon size-plus" id="sizePlus" title="Increase size"></button>
+                <button class="control-icon size-minus" id="sizeMinus" title="Decrease size"></button>
+            </div>
+        </div>
         <textarea class="text-area text-area--my" id="myMessages" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
     </div>
 
