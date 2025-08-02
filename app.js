@@ -238,16 +238,14 @@ class ControlPanelController {
     }
 
     setupEventListeners() {
-        // Clear button
-        document.getElementById('clearButton').addEventListener('click', async () => {
-            this.uiController.myTextArea.value = '';
-            await this.firebaseService.updateTyping('', 0, 0, 0);
-            this.uiController.myTextArea.focus();
+        // Hamburger menu toggle
+        document.getElementById('hamburgerButton').addEventListener('click', () => {
+            this.toggleControlBar();
         });
 
-        // Hamburger menu
-        document.getElementById('hamburgerButton').addEventListener('click', () => {
-            this.toggleMenu();
+        // Dark mode toggle
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            this.toggleDarkMode();
         });
 
         // Font toggle
@@ -264,35 +262,57 @@ class ControlPanelController {
             this.changeSize(-2);
         });
 
-        // Close menu when clicking outside
+        // Clear button
+        document.getElementById('clearButton').addEventListener('click', async () => {
+            this.uiController.myTextArea.value = '';
+            await this.firebaseService.updateTyping('', 0, 0, 0);
+            this.uiController.myTextArea.focus();
+        });
+
+        // Close control bar when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.control-panel') && this.menuOpen) {
-                this.closeMenu();
+            if (!e.target.closest('.control-bar') && !e.target.closest('.hamburger-container') && this.menuOpen) {
+                this.closeControlBar();
             }
         });
     }
 
-    toggleMenu() {
-        const toggleOptions = document.getElementById('toggleOptions');
+    toggleControlBar() {
+        const controlBar = document.getElementById('controlBar');
+        const hamburgerButton = document.getElementById('hamburgerButton');
         this.menuOpen = !this.menuOpen;
         
         if (this.menuOpen) {
-            toggleOptions.classList.add('active');
+            controlBar.classList.add('active');
+            hamburgerButton.classList.add('open');
         } else {
-            toggleOptions.classList.remove('active');
+            controlBar.classList.remove('active');
+            hamburgerButton.classList.remove('open');
         }
     }
 
-    closeMenu() {
-        const toggleOptions = document.getElementById('toggleOptions');
-        toggleOptions.classList.remove('active');
+    closeControlBar() {
+        const controlBar = document.getElementById('controlBar');
+        const hamburgerButton = document.getElementById('hamburgerButton');
+        controlBar.classList.remove('active');
+        hamburgerButton.classList.remove('open');
         this.menuOpen = false;
+    }
+
+    toggleDarkMode() {
+        // Toggle dark mode class on the document
+        document.documentElement.classList.toggle('dark-mode');
+        
+        // Save preference to localStorage (local only, not shared via Firebase)
+        const isDarkMode = document.documentElement.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode.toString());
+        
+        console.log('Dark mode toggled:', isDarkMode ? 'ON' : 'OFF');
     }
 
     async toggleFont() {
         this.currentFont = this.currentFont === 'monospace' ? 'noto' : 'monospace';
         await this.updatePreferences();
-        this.closeMenu();
     }
 
     async changeSize(delta) {
@@ -386,6 +406,15 @@ class ChatApp {
     }
 
     async init() {
+        // Load dark mode preference (local only - not shared between users)
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            document.documentElement.classList.add('dark-mode');
+            console.log('Dark mode loaded from localStorage: ON');
+        } else {
+            console.log('Dark mode loaded from localStorage: OFF');
+        }
+
         // Load my preferences
         const myPreferences = await this.firebaseService.loadUserPreferences();
         this.controlPanelController.setCurrentPreferences(myPreferences.font, myPreferences.fontSize);
