@@ -96,6 +96,28 @@
     autocomplete: off;
 }
 
+/* RTL Support for Noto Font */
+.text-area--rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+.text-area--ltr {
+    direction: ltr;
+    text-align: left;
+}
+
+/* Real-time Display RTL Support */
+.text-with-cursor--rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+.text-with-cursor--ltr {
+    direction: ltr;
+    text-align: left;
+}
+
 .text-area--other {
     color: var(--text-white);
 }
@@ -120,87 +142,97 @@
     color: white;
 }
 
-/* Clear Button */
-.clear-button {
+/* Control Panel */
+.control-panel {
     position: absolute;
     bottom: var(--spacing-sm);
     right: var(--spacing-sm);
-    width: 36px;
-    height: 36px;
-    background: rgba(106, 76, 147, 0.2);
-    border: 1px solid rgba(106, 76, 147, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    z-index: 10;
+}
+
+/* Base Icon Style */
+.control-icon {
+    width: 28px;
+    height: 28px;
+    background: rgba(106, 76, 147, 0.15);
+    border: 1px solid rgba(106, 76, 147, 0.2);
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    z-index: 10;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
 }
 
-.clear-button:hover {
-    background: rgba(106, 76, 147, 0.3);
-    border-color: rgba(106, 76, 147, 0.4);
+.control-icon:hover {
+    background: rgba(106, 76, 147, 0.25);
+    border-color: rgba(106, 76, 147, 0.3);
     transform: scale(1.05);
 }
 
-.clear-button:active {
-    transform: scale(0.98);
-    background: rgba(106, 76, 147, 0.25);
+.control-icon:active {
+    transform: scale(0.95);
+    background: rgba(106, 76, 147, 0.2);
 }
 
-.clear-button::before {
-    content: '×';
-    color: rgba(106, 76, 147, 0.8);
-    font-size: 22px;
+.control-icon::before {
+    color: rgba(106, 76, 147, 0.7);
+    font-size: 14px;
     font-weight: bold;
     line-height: 1;
 }
 
-.clear-button:hover::before {
-    color: rgba(106, 76, 147, 1);
-}
-
-/* Preferences Button */
-.preferences-button {
-    position: absolute;
-    bottom: 60px;
-    right: var(--spacing-sm);
-    width: 32px;
-    height: 32px;
-    background: rgba(106, 76, 147, 0.15);
-    border: 1px solid rgba(106, 76, 147, 0.25);
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    z-index: 10;
-    backdrop-filter: blur(6px);
-}
-
-.preferences-button:hover {
-    background: rgba(106, 76, 147, 0.25);
-    border-color: rgba(106, 76, 147, 0.35);
-    transform: scale(1.05);
-}
-
-.preferences-button:active {
-    transform: scale(0.98);
-    background: rgba(106, 76, 147, 0.2);
-}
-
-.preferences-button::before {
-    content: '⚙';
-    color: rgba(106, 76, 147, 0.7);
-    font-size: 16px;
-    line-height: 1;
-}
-
-.preferences-button:hover::before {
+.control-icon:hover::before {
     color: rgba(106, 76, 147, 0.9);
+}
+
+/* Clear Button */
+.clear-button::before {
+    content: '×';
+    font-size: 18px;
+}
+
+/* Hamburger Button */
+.hamburger-button::before {
+    content: '☰';
+    font-size: 12px;
+}
+
+/* Toggle Options */
+.toggle-options {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+}
+
+.toggle-options.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Font Toggle */
+.font-toggle::before {
+    content: 'ف';
+}
+
+/* Size Controls */
+.size-plus::before {
+    content: '+';
+    font-size: 16px;
+}
+
+.size-minus::before {
+    content: '−';
+    font-size: 16px;
 }
 
 /* Preferences Overlay */
