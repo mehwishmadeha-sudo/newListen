@@ -1,0 +1,220 @@
+/* Real-time Chat App - Production Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Colors */
+    --primary-purple: #6A4C93;
+    --surface-white: #ffffff;
+    --text-white: #ffffff;
+    --text-purple: #6A4C93;
+    
+    /* Typography */
+    --font-family: 'Courier New', monospace;
+    --font-size: 20px;
+    --font-weight: 700;
+    --line-height: 1.5;
+    
+    /* Spacing */
+    --spacing-sm: 8px;
+}
+
+/* Main Container */
+.chat-container {
+    font-family: var(--font-family);
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface-white);
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* Top Section - Other Person's Messages */
+.surface-other-messages {
+    flex: 1;
+    height: 50%;
+    background: var(--primary-purple);
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Bottom Section - My Messages */
+.surface-my-messages {
+    flex: 1;
+    height: 50%;
+    background: var(--surface-white);
+    margin: 0;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Text Areas */
+.text-area {
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    line-height: var(--line-height);
+    padding: var(--spacing-sm);
+    margin: 0;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    spellcheck: false;
+    -webkit-spellcheck: false;
+    autocorrect: off;
+    autocapitalize: off;
+    autocomplete: off;
+}
+
+.text-area--other {
+    color: var(--text-white);
+}
+
+.text-area--my {
+    color: var(--text-purple);
+}
+
+/* Custom Text Selection */
+.text-area--my::selection {
+    background: rgba(106, 76, 147, 0.6);
+    color: white;
+}
+
+.text-area--my::-moz-selection {
+    background: rgba(106, 76, 147, 0.6);
+    color: white;
+}
+
+.text-area--my::-webkit-selection {
+    background: rgba(106, 76, 147, 0.6);
+    color: white;
+}
+
+/* Clear Button */
+.clear-button {
+    position: absolute;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 2px solid var(--primary-purple);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s cubic-bezier(0.2, 0.0, 0, 1.0);
+    z-index: 10;
+}
+
+.clear-button:hover {
+    background: var(--primary-purple);
+    transform: scale(1.1);
+}
+
+.clear-button:active {
+    transform: scale(0.95);
+}
+
+.clear-button::before {
+    content: '×';
+    color: var(--primary-purple);
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.clear-button:hover::before {
+    color: white;
+}
+
+/* Real-time Display */
+.text-with-cursor {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    font-weight: var(--font-weight);
+    line-height: var(--line-height);
+    padding: var(--spacing-sm);
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    color: var(--text-white);
+    overflow-y: auto;
+}
+
+/* Live Cursor */
+.live-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: var(--text-white);
+    animation: blink 1s infinite;
+    position: relative;
+    vertical-align: top;
+}
+
+/* Text Selection Display */
+.live-selection {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    position: relative;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Mobile Viewport */
+@media screen and (max-width: 768px) {
+    .chat-container {
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(225, 190, 231, 0.5);
+    border-radius: 2px;
+} 

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - User 1</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="chat-container">
+    <!-- Other person's messages section -->
+    <div class="surface-other-messages">
+        <div class="text-with-cursor" id="otherMessagesDisplay"></div>
+    </div>
+
+    <!-- My messages section -->
+    <div class="surface-my-messages">
+        <button class="clear-button" id="clearButton" title="Clear message"></button>
+        <textarea class="text-area text-area--my" id="myMessages" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
+    </div>
+
+    <script type="module">
+        // Set user identifier for this route
+        window.CHAT_USER_ID = 'user1';
+        window.CHAT_OTHER_USER_ID = 'user2';
+    </script>
+    <script type="module" src="app.js"></script>
+</body>
+</html> 
