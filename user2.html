@@ -17,20 +17,54 @@
 
     <!-- My messages section -->
     <div class="surface-my-messages">
-        <div class="hamburger-container">
-            <button class="hamburger-button" id="hamburgerButton" title="Options"></button>
+        <div class="control-panel">
+            <button class="control-icon clear-button" id="clearButton" title="Clear message"></button>
+            <button class="control-icon hamburger-button" id="hamburgerButton" title="Options"></button>
+            <div class="toggle-options" id="toggleOptions">
+                <button class="control-icon font-toggle" id="fontToggle" title="Toggle font"></button>
+                <button class="control-icon size-plus" id="sizePlus" title="Increase size"></button>
+                <button class="control-icon size-minus" id="sizeMinus" title="Decrease size"></button>
+            </div>
         </div>
         <textarea class="text-area text-area--my" id="myMessages" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
-        <div class="control-bar" id="controlBar">
-            <button class="control-icon dark-mode-toggle" id="darkModeToggle" title="Toggle dark mode"></button>
-            <button class="control-icon font-toggle" id="fontToggle" title="Toggle font"></button>
-            <button class="control-icon size-plus" id="sizePlus" title="Increase size"></button>
-            <button class="control-icon size-minus" id="sizeMinus" title="Decrease size"></button>
-            <button class="control-icon clear-button" id="clearButton" title="Clear message"></button>
-        </div>
     </div>
 
-
+    <!-- Preferences Overlay -->
+    <div class="preferences-overlay" id="preferencesOverlay">
+        <div class="preferences-dialog">
+            <h3 class="preferences-title">Font Settings</h3>
+            
+            <div class="font-option selected" data-font="monospace">
+                <div class="font-radio"></div>
+                <div>
+                    <div class="font-label">Monospace</div>
+                    <div class="font-preview" style="font-family: 'Courier New', monospace;">The quick brown fox jumps</div>
+                </div>
+            </div>
+            
+            <div class="font-option" data-font="noto">
+                <div class="font-radio"></div>
+                <div>
+                    <div class="font-label">Noto Nastaliq</div>
+                    <div class="font-preview" style="font-family: 'Noto Nastaliq Urdu', serif;">یہ ایک خوبصورت فونٹ ہے</div>
+                </div>
+            </div>
+            
+            <div class="size-control">
+                <label class="size-label">Text Size</label>
+                <div class="size-slider-container">
+                    <span class="size-value" id="sizeValue">20</span>
+                    <input type="range" class="size-slider" id="sizeSlider" min="14" max="32" value="20" step="2">
+                    <span style="color: var(--text-purple); font-size: 12px;">px</span>
+                </div>
+            </div>
+            
+            <div class="preferences-actions">
+                <button class="preference-button preference-button--cancel" id="cancelPreferences">Cancel</button>
+                <button class="preference-button preference-button--apply" id="applyPreferences">Apply</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         // Set user identifier for this route
