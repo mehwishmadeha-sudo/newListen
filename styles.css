@@ -16,8 +16,12 @@
     /* Typography */
     --font-family: 'Courier New', monospace;
     --font-size: 20px;
-    --font-weight: 700;
+    --font-weight: 800;
     --line-height: 1.5;
+    
+    /* Font Options */
+    --font-monospace: 'Courier New', monospace;
+    --font-noto: 'Noto Nastaliq Urdu', serif;
     
     /* Spacing */
     --spacing-sm: 8px;
@@ -119,40 +123,294 @@
 /* Clear Button */
 .clear-button {
     position: absolute;
-    top: var(--spacing-sm);
+    bottom: var(--spacing-sm);
     right: var(--spacing-sm);
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    border: 2px solid var(--primary-purple);
+    width: 36px;
+    height: 36px;
+    background: rgba(106, 76, 147, 0.2);
+    border: 1px solid rgba(106, 76, 147, 0.3);
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s cubic-bezier(0.2, 0.0, 0, 1.0);
+    transition: all 0.2s ease;
     z-index: 10;
+    backdrop-filter: blur(8px);
 }
 
 .clear-button:hover {
-    background: var(--primary-purple);
-    transform: scale(1.1);
+    background: rgba(106, 76, 147, 0.3);
+    border-color: rgba(106, 76, 147, 0.4);
+    transform: scale(1.05);
 }
 
 .clear-button:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
+    background: rgba(106, 76, 147, 0.25);
 }
 
 .clear-button::before {
     content: '×';
-    color: var(--primary-purple);
-    font-size: 20px;
+    color: rgba(106, 76, 147, 0.8);
+    font-size: 22px;
     font-weight: bold;
     line-height: 1;
 }
 
 .clear-button:hover::before {
+    color: rgba(106, 76, 147, 1);
+}
+
+/* Preferences Button */
+.preferences-button {
+    position: absolute;
+    bottom: 60px;
+    right: var(--spacing-sm);
+    width: 32px;
+    height: 32px;
+    background: rgba(106, 76, 147, 0.15);
+    border: 1px solid rgba(106, 76, 147, 0.25);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+    backdrop-filter: blur(6px);
+}
+
+.preferences-button:hover {
+    background: rgba(106, 76, 147, 0.25);
+    border-color: rgba(106, 76, 147, 0.35);
+    transform: scale(1.05);
+}
+
+.preferences-button:active {
+    transform: scale(0.98);
+    background: rgba(106, 76, 147, 0.2);
+}
+
+.preferences-button::before {
+    content: '⚙';
+    color: rgba(106, 76, 147, 0.7);
+    font-size: 16px;
+    line-height: 1;
+}
+
+.preferences-button:hover::before {
+    color: rgba(106, 76, 147, 0.9);
+}
+
+/* Preferences Overlay */
+.preferences-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.preferences-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.preferences-dialog {
+    background: var(--surface-white);
+    border-radius: 16px;
+    padding: 24px;
+    width: 90vw;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.preferences-overlay.active .preferences-dialog {
+    transform: scale(1) translateY(0);
+}
+
+.preferences-title {
+    color: var(--text-purple);
+    font-family: var(--font-family);
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.font-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.font-option:hover {
+    background: rgba(106, 76, 147, 0.05);
+}
+
+.font-option.selected {
+    background: rgba(106, 76, 147, 0.1);
+    border-color: rgba(106, 76, 147, 0.3);
+}
+
+.font-radio {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(106, 76, 147, 0.4);
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.font-option.selected .font-radio {
+    border-color: var(--primary-purple);
+}
+
+.font-option.selected .font-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-purple);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.font-label {
+    color: var(--text-purple);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.font-preview {
+    color: rgba(106, 76, 147, 0.7);
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+.preferences-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.preference-button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-family);
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.preference-button--cancel {
+    background: rgba(106, 76, 147, 0.1);
+    color: var(--text-purple);
+}
+
+.preference-button--cancel:hover {
+    background: rgba(106, 76, 147, 0.15);
+}
+
+.preference-button--apply {
+    background: var(--primary-purple);
     color: white;
+}
+
+.preference-button--apply:hover {
+    background: rgba(106, 76, 147, 0.9);
+    transform: translateY(-1px);
+}
+
+/* Text Size Slider */
+.size-control {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(106, 76, 147, 0.2);
+}
+
+.size-label {
+    color: var(--text-purple);
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.size-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.size-value {
+    color: var(--text-purple);
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+}
+
+.size-slider {
+    flex: 1;
+    height: 6px;
+    background: rgba(106, 76, 147, 0.2);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-purple);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.size-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(106, 76, 147, 0.3);
+}
+
+.size-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-purple);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.size-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(106, 76, 147, 0.3);
 }
 
 /* Real-time Display */
